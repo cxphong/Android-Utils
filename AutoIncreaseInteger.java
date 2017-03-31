@@ -2,6 +2,9 @@ package co.fiottrendsolar.m2m.utils;
 
 /**
  * Created by caoxuanphong on 3/31/17.
+ *
+ * Usesage: 
+ * 		new AutoIncreaseInteger().getValue();	
  */
 
 public class AutoIncreaseInteger {
