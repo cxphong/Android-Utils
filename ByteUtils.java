@@ -193,4 +193,8 @@ public class ByteUtils {
 
         return false;
     }
+
+    public static float toFloat(byte[] b) {
+        return ByteBuffer.wrap(b).order(ByteOrder.BIG_ENDIAN).getFloat();
+    }
 }
