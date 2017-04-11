@@ -1,6 +1,9 @@
 package common.android.fiot.androidcommon;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /**
@@ -28,16 +31,119 @@ public class ByteUtils {
         return array;
     }
 
+    /**
+     * Convert a String into byte array
+     * @param string
+     * @return
+     */
     public static byte[] stringToByteArray(String string) {
         return string.getBytes();
     }
 
-    public static byte[] integerToByteArray(int number) {
-        return ByteBuffer.allocate(4).putInt(number).array();
+    /**
+     * Convert interger into byte array
+     * @param number
+     * @param order
+     * @return
+     */
+    public static byte[] integerToByteArray(int number, ByteOrder order) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(4);
+        byteBuffer.order(order);
+        return byteBuffer.putInt(number).array();
     }
 
-    public static byte[] longToByteArray(long number) {
-        return ByteBuffer.allocate(8).putLong(number).array();
+    /**
+     * Convert long into byte array
+     * @param number
+     * @param order
+     * @return
+     */
+    public static byte[] longToByteArray(long number, ByteOrder order) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(8);
+        byteBuffer.order(order);
+        return byteBuffer.putLong(number).array();
+    }
+
+    /**
+     * Convert short into byte array
+     * @param number
+     * @param order
+     * @return
+     */
+    public static byte[] shortToByteArray(short number, ByteOrder order) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(2);
+        byteBuffer.order(order);
+        return byteBuffer.putShort(number).array();
+    }
+
+    /**
+     * Convert float into byte array
+     * @param number
+     * @param order
+     * @return
+     */
+    public static byte[] floatToByteArray(float number, ByteOrder order) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(4);
+        byteBuffer.order(order);
+        return byteBuffer.putFloat(number).array();
+    }
+
+    /**
+     * Convert double into byte array
+     * @param number
+     * @param order
+     * @return
+     */
+    public static byte[] doubleToByteArray(double number, ByteOrder order) {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(8);
+        byteBuffer.order(order);
+        return byteBuffer.putDouble(number).array();
+    }
+
+    /**
+     * Convert byte array into float
+     * @param b
+     * @param order
+     * @return
+     */
+    public static float toFloat(byte[] b, ByteOrder order) {
+        return ByteBuffer.wrap(b).order(order).getFloat();
+    }
+
+    /**
+     * Convert byte array into integer
+     * @param b
+     * @param order
+     * @return
+     */
+    public static int toInteger(byte[] b, ByteOrder order) {
+        return ByteBuffer.wrap(b).order(order).getInt();
+    }
+
+    /**
+     * Convert  byte array into long
+     * @param b
+     * @param order
+     * @return
+     */
+    public static long toLong(byte[] b, ByteOrder order) {
+        return ByteBuffer.wrap(b).order(order).getLong();
+    }
+
+    public static double toDouble(byte[] b, ByteOrder order) {
+        return ByteBuffer.wrap(b).order(order).getDouble();
+    }
+
+    public static short toShort(byte[] b, ByteOrder order) {
+        return ByteBuffer.wrap(b).order(order).getShort();
+    }
+
+    public static String toString(byte[] b) {
+        return new String(b, StandardCharsets.UTF_8);
+    }
+
+    public static String toString(byte[] b, Charset charset) {
+        return new String(b, charset);
     }
 
     public static byte[] add2ByteArray(byte[] a, byte[] b) {
@@ -92,26 +198,6 @@ public class ByteUtils {
         return Arrays.copyOfRange(src, startPos, endPos );
     }
 
-    // the first byte the most significant
-    public static long toLongFirstMostSignificant(byte[] bytes) {
-        long value = 0;
-        for (int i = 0; i < bytes.length; i++) {
-            value = (value << 8) + (bytes[i] & 0xff);
-        }
-
-        return value;
-    }
-
-    // the first byte the least significant
-    public static long toLongFirstLeastSignificant(byte[] bytes) {
-        long value = 0;
-        for (int i = 0; i < bytes.length; i++) {
-            value += ((long) bytes[i] & 0xffL) << (8 * i);
-        }
-
-        return value;
-    }
-
     public static String toHexString(byte[] a) {
         if (a == null) return null;
 
@@ -151,14 +237,6 @@ public class ByteUtils {
         return ((bHi&0xff) << 8) + (bLo&0xff);
     }
 
-    public static String toString(byte[] b) {
-        if (b == null) {
-            return null;
-        }
-
-        return new String(b);
-    }
-
     /**
      * Check @child is contain in @src
      * @param src
@@ -194,7 +272,4 @@ public class ByteUtils {
         return false;
     }
 
-    public static float toFloat(byte[] b) {
-        return ByteBuffer.wrap(b).order(ByteOrder.BIG_ENDIAN).getFloat();
-    }
 }

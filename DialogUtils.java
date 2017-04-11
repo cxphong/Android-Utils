@@ -1,10 +1,13 @@
-package common.android.fiot.androidcommon;
+package com.viralandroid.androidtabsatbottom.utils;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.AlertDialog;
+
+import common.android.fiot.androidcommon.R;
+
 
 /**
  * Created by caoxuanphong on    8/19/16.
@@ -26,6 +29,64 @@ public class DialogUtils {
                     new AlertDialog.Builder(context)
                             .setMessage(message)
                             .setPositiveButton("OK", clickOKListener)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    /**
+     * Have click OK Listener
+     * @param context
+     * @param tittle
+     * @param message
+     * @param clickOKListener
+     */
+    public static void showMessage(final Context context,
+                                   final String tittle,
+                                   final String message,
+                                   final DialogInterface.OnClickListener clickOKListener) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    new AlertDialog.Builder(context)
+                            .setTitle(tittle)
+                            .setMessage(message)
+                            .setPositiveButton("OK", clickOKListener)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    /**
+     * Have click OK Listener
+     * @param context
+     * @param tittle
+     * @param message
+     * @param clickOKListener
+     */
+    public static void showMessage(final Context context,
+                                   final String tittle,
+                                   final String message,
+                                   final DialogInterface.OnClickListener clickOKListener,
+                                   final DialogInterface.OnClickListener clickCancelListener) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    new AlertDialog.Builder(context)
+                            .setTitle(tittle)
+                            .setMessage(message)
+                            .setPositiveButton("OK", clickOKListener)
+                            .setNegativeButton("Cancel", clickCancelListener)
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .show();
                 } catch (Exception e) {

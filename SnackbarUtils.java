@@ -1,4 +1,4 @@
-package uk.co.utils;
+package common.android.fiot.androidcommon;
 
 import android.os.Handler;
 import android.os.Looper;
