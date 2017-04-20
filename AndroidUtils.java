@@ -29,6 +29,6 @@ public class AndroidUtils {
 	 * Call in @onCreate() of current Activity, call befor @setContentView()	
 	 */
 	public static void keepScreenAlwaysOn() {
-		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		//getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 }
