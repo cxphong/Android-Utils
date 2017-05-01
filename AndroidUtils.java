@@ -22,6 +22,10 @@
 
 package common.android.fiot.androidcommon;
 
+import android.content.Context;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
+
 public class AndroidUtils {
 
 	/**
@@ -30,5 +34,10 @@ public class AndroidUtils {
 	 */
 	public static void keepScreenAlwaysOn() {
 		//getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+	}
+
+	public static float dpToPx(Context context, int dp) {
+		DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+		return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, metrics);
 	}
 }

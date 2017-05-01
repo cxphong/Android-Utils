@@ -5,8 +5,10 @@ package common.android.fiot.androidcommon;
  */
 
 public class BitUtils {
+
     /**
-     * Covert int to string of binary
+     * Covert Integer to string of binary
+     *
      * @param i
      * @return
      */
@@ -14,15 +16,39 @@ public class BitUtils {
         return Integer.toBinaryString(i);
     }
 
+    /**
+     * Convert Binary string into Integer
+     *
+     * @param b
+     * @return
+     */
     public static int binaryStringToInt(String b) {
         return Integer.parseInt(b, 2);
     }
 
+    /**
+     * Convert Binary string into Hex string
+     *
+     * @param b
+     * @return
+     */
     public static String binaryStringToHexString(String b) {
         return Integer.toHexString(Integer.parseInt(b, 2));
     }
 
+    /**
+     * Get value of Integer with bit
+     *
+     * @param i
+     * @param startPos
+     * @param length
+     * @return
+     */
     public static String getBit(int i, int startPos, int length) {
+        if (startPos < 0 || length < 0) {
+            return null;
+        }
+
         String b = "";
         int j = 0;
 
