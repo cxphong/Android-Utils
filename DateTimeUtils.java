@@ -21,6 +21,10 @@ public class DateTimeUtils {
         return (System.currentTimeMillis() / 1000 + offsetFromUtc);
     }
 
+    /**
+     * Get current timezone of device
+     * @return
+     */
     public static int getTimezone() {
         TimeZone tz = TimeZone.getDefault();
         Date now = new Date();
@@ -30,10 +34,6 @@ public class DateTimeUtils {
     }
 
     public static String epochToString(long epoch, String format) {
-//        TimeZone tz = TimeZone.getDefault();
-//        Date now = new Date();
-//        int offsetFromUtc = tz.getOffset(now.getTime()) / 1000;
-
         //Date date = new Date((epoch - offsetFromUtc) * 1000);
         Date date = new Date((epoch) * 1000);
         SimpleDateFormat s = new SimpleDateFormat(format);
@@ -62,7 +62,12 @@ public class DateTimeUtils {
         return false;
     }
 
-    public static String getDateTime(String format) {
+    /**
+     * Get current time
+     * @param format Wanted format
+     * @return
+     */
+    public static String getCurrentTime(String format) {
         SimpleDateFormat sdf = new SimpleDateFormat(format);
         return sdf.format(new Date());
     }

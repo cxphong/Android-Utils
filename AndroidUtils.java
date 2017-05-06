@@ -1,3 +1,4 @@
+
 package com.example.dinhtho.fileutils;
 
 import android.accounts.Account;
@@ -207,4 +208,28 @@ public class AndroidUtils {
     }
 
 }
+
+//dpToPixel()
+//pxelToDp()
+//screenWidth()
+//screenHeight()
+//makeScreenAlwaysOn();
+//getBattery()
+//getTotalMemory()
+//getFreeMemory()
+//isPhoneOrTablet()
+//getModel()
+//getAndroidversion()
+//getIPAddress()
+//getBatteryStatus()
+//getLanguage()
+//getUserName()
+//getPhoneNumber()
+//getCurrentWifi()
+//getSIMInfo();
+//getNumberPhotos()
+//getNumberImage()
+//getNumberVideo()
+
+
 

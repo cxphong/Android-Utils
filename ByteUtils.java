@@ -146,7 +146,13 @@ public class ByteUtils {
         return new String(b, charset);
     }
 
-    public static byte[] add2ByteArray(byte[] a, byte[] b) {
+    /**
+     * Concatenate 2 byte array into new byte array
+     * @param a
+     * @param b
+     * @return
+     */
+    public static byte[] concatenate(byte[] a, byte[] b) {
         if (a == null && b == null) return null;
         if (a == null && b != null) return b;
         if (a != null && b == null) return a;
@@ -158,6 +164,12 @@ public class ByteUtils {
         return c;
     }
 
+    /**
+     * Add 1 byte into the end of byte array
+     * @param a
+     * @param b
+     * @return
+     */
     public static byte[] addByte(byte[] a, byte b) {
         byte[] c;
         if (a == null) {
@@ -177,7 +189,14 @@ public class ByteUtils {
         return c;
     }
 
-    public static byte[] append(byte[] src, byte[] bytes, int startPos) {
+    /**
+     * Merge 2 byte array
+     * @param src
+     * @param bytes
+     * @param startPos
+     * @return
+     */
+    public static byte[] merge(byte[] src, byte[] bytes, int startPos) {
         int j = 0;
         for (int i = startPos; i < startPos + bytes.length; i++) {
             src[i] = bytes[j++];
@@ -186,6 +205,13 @@ public class ByteUtils {
         return src;
     }
 
+    /**
+     * Get sub of array
+     * @param src
+     * @param startPos
+     * @param num
+     * @return
+     */
     public static byte[] subByteArray(byte[] src, int startPos, int num) {
         int endPos = 0;
 
@@ -198,6 +224,11 @@ public class ByteUtils {
         return Arrays.copyOfRange(src, startPos, endPos );
     }
 
+    /**
+     * Convert byte array into string array of hex
+     * @param a
+     * @return
+     */
     public static String toHexString(byte[] a) {
         if (a == null) return null;
 
@@ -214,8 +245,20 @@ public class ByteUtils {
 
         return Arrays.toString(a);
     }
-    
+
+    /**
+     * Compare 2 byte array contain same data
+     * @param b1
+     * @param b2
+     * @return
+     */
     public static boolean compare2Array(byte[] b1, byte[] b2) {
+        if (b1 == null && b2 == null) return true;
+
+        if (b1 == null | b2 == null) return false;
+
+        if (b1 == b2) return true;
+
         if (b1.length != b2.length) return false;
         
         for (int i = 0; i < b1.length; i++) {
@@ -225,20 +268,8 @@ public class ByteUtils {
         return true;
     }
 
-    public static int getHi(byte b) {
-        return (((b&0xff) & 0xf0) >> 4);
-    }
-
-    public static int getLo(byte b) {
-        return (((b&0xff) & 0x0F));
-    }
-
-    public static int merge2Bytes(byte bHi, byte bLo) {
-        return ((bHi&0xff) << 8) + (bLo&0xff);
-    }
-
     /**
-     * Check @child is contain in @src
+     * Check @child byte array is contain in @src byte array
      * @param src
      * @param child
      * @return

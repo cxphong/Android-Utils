@@ -1,5 +1,4 @@
-package com.example.dinhtho.fileutils;
-
+package common.android.fiot.androidcommon;
 
 import android.content.Context;
 import android.content.Intent;
@@ -33,19 +32,33 @@ import java.util.zip.ZipOutputStream;
 
 public class FileUtils {
     private static final String TAG = "FileUtils";
+
     /**
-     *
-     * @return is Removeable SDCard Exist
+     * Check SDCard is available
      */
-    public static boolean isRemoveableSDCardExist() {
-        return new File("/mnt/extSdCard").exists();
-    }
-    /**
-     *
-     * @return is SDcard Available
-     */
-    public static boolean isSDcardAvailable() {
+    public static boolean isSDCardAvailable() {
         return android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
+    }
+
+    /**
+     * Checks if external storage is available for read and write
+     */
+    public static boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
+    }
+
+    /* Checks if external storage is available to at least read */
+    public static boolean isExternalStorageReadable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -62,11 +75,10 @@ public class FileUtils {
      * @return SDCard RootPath
      */
     public static String getSDCardRootPath() {
-        if (isSDcardAvailable()) {
-            return Environment.getExternalStorageState();
-        } else if (isRemoveableSDCardExist()) {
-            return System.getenv("SECONDARY_STORAGE");
+        if (isSDCardAvailable()) {
+            return Environment.getExternalStorageDirectory().getAbsolutePath();
         }
+
         return null;
     }
 
@@ -76,7 +88,7 @@ public class FileUtils {
      * @return Internal Storage Path
      */
     public static String getInternalStoragePath(Context context) {
-        return context.getFilesDir().toString();
+        return context.getFilesDir().getAbsolutePath();
     }
 
     /**
@@ -84,20 +96,14 @@ public class FileUtils {
      * @return free size External Storage
      */
     public static long getFreeSDCardSize() {
-        if (isSDcardAvailable()) {
-            File path = Environment.getDataDirectory();
-            StatFs stat = new StatFs(path.getPath());
-            long blockSize = stat.getBlockSize();
-            long availableBlocks = stat.getAvailableBlocks();
-            return availableBlocks * blockSize;
-        } else if (isRemoveableSDCardExist()) {
-            String secStore = System.getenv("SECONDARY_STORAGE");
-            File path = new File(secStore);
+        if (isSDCardAvailable()) {
+            File path = new File(getSDCardRootPath());
             StatFs stat = new StatFs(path.getPath());
             long blockSize = stat.getBlockSize();
             long availableBlocks = stat.getAvailableBlocks();
             return availableBlocks * blockSize;
         }
+
         return 0;
     }
 
@@ -111,87 +117,86 @@ public class FileUtils {
         return freeBytesInternal;
     }
 
-    public static void createAppFolderInSDcard(Context context) {
-        if (isSDcardAvailable()) {
-            String extStorageDirectory = Environment
-                    .getExternalStorageDirectory().toString();
-            File folder = new File(extStorageDirectory, "/Android/data/" + context.getPackageName());
+    public static String getAppFolderInSDCardPath(Context context) {
+        return getSDCardRootPath() + "/" + context.getResources().getString(R.string.app_name);
+    }
+
+    /**
+     * Create folder with name is app's name
+     * @param context
+     */
+    public static void createAppFolderInSDCard(Context context) {
+        if (isSDCardAvailable()) {
+            String extStorageDirectory = getSDCardRootPath();
+            File folder = new File(extStorageDirectory +  "/" + context.getResources().getString(R.string.app_name));
+
+            Log.i(TAG, "createAppFolderInSDcard: " + folder.getAbsolutePath());
             if (!folder.exists()) {
-                folder.mkdir();
-            }
-        } else {
-            if (!isRemoveableSDCardExist()) {
-                return;
-            }
-            String secStore = System.getenv("SECONDARY_STORAGE");
-            File fp = new File(secStore, "NewFolder");
-            fp.mkdir();
-            if (!fp.exists()) {
-                return;
-            }
-            File folder = new File(secStore, "/Android/data/" + context.getPackageName());
-            if (!folder.exists()) {
+                Log.i(TAG, "createAppFolderInSDcard: dd");
                 folder.mkdir();
             }
         }
     }
 
+    /**
+     * Create folder in Root path of SDCard
+     * @param nameFolder
+     */
     public static void createFolderInRootSDCard(String nameFolder) {
         if (nameFolder == null || nameFolder.length() == 0) {
             return;
-        } else if (isSDcardAvailable()) {
+        } else if (isSDCardAvailable() && isExternalStorageWritable()) {
             File f = new File(Environment.getExternalStorageDirectory(), nameFolder);
             if (!f.exists()) {
                 f.mkdirs();
             }
-        } else {
-            if (!isRemoveableSDCardExist()) {
-                return;
-            }
-            String secStore = System.getenv("SECONDARY_STORAGE");
-            File fp = new File(secStore, "NewFolder");
-            fp.mkdir();
-            if (!fp.exists()) {
-                return;
-            }
-            File f = new File(System.getenv("SECONDARY_STORAGE") + "/" + nameFolder);
-            if (!f.exists()) {
-                f.mkdirs();
-            }
         }
     }
 
+    /**
+     * Create folder in app folder
+     * @param nameFolder
+     * @param context
+     */
     public static void createFolderInAppFolder(String nameFolder, Context context) {
         if (nameFolder == null || nameFolder.length() == 0) {
             return;
         }
-        File dir = context.getDir(nameFolder, Context.MODE_PRIVATE);
-        if (!dir.exists()) {
-            dir.mkdir();
+
+        if (!isExternalStorageWritable()) return;
+
+        createAppFolderInSDCard(context);
+        createFolder(getAppFolderInSDCardPath(context) + "/" + nameFolder);
+    }
+
+    public static boolean createFolder(String folderPath) {
+        if (folderPath == null || folderPath.length() == 0) return false;
+        if (!isExternalStorageWritable()) return false;
+
+        File f = new File(folderPath);
+        if (f.exists() && f.isDirectory()) {
+            return true;
+        } else {
+            return f.mkdirs();
         }
     }
 
-    public static void createFolder(String nameFolder) {
+    public static boolean createFolderInInternalStorage(String nameFolder, Context context) {
         if (nameFolder == null || nameFolder.length() == 0) {
-            return;
+            return false;
         }
-        File f = new File(Environment.getExternalStorageDirectory(), nameFolder);
-        if (!f.exists()) {
-            f.mkdirs();
-        }
-    }
 
-    public static void createFolderInInternalStorage(String nameFolder, Context context) {
-        if (nameFolder == null || nameFolder.length() == 0) {
-            return;
-        }
+        if (!isInternalStorageAvailable(context)) return false;
+
         File file = new File(context.getFilesDir(), nameFolder);
-        if (!file.exists()) {
-            file.mkdirs();
+        if (file.exists() && file.isDirectory()) {
+            return true;
+        } else {
+            return file.mkdirs();
         }
     }
 
-    public static void createFileInAppfolder(String fileName, Context context) {
+    public static void createFileInAppFolder(String fileName, Context context) {
         if (fileName == null || fileName.length() == 0) {
             return;
         }
@@ -208,7 +213,7 @@ public class FileUtils {
     public static void createFileInRootSDCard(String fileName) {
         if (fileName == null || fileName.length() == 0) {
             return;
-        } else if (isSDcardAvailable()) {
+        } else if (isSDCardAvailable()) {
             File f = new File(Environment.getExternalStorageDirectory(), fileName);
             if (!f.exists()) {
                 try {
@@ -217,25 +222,6 @@ public class FileUtils {
                     e.printStackTrace();
                 }
             }
-        } else {
-            if (!isRemoveableSDCardExist()) {
-                return;
-            }
-            String secStore = System.getenv("SECONDARY_STORAGE");
-            File fp = new File(secStore, "NewFolder");
-            fp.mkdir();
-            if (!fp.exists()) {
-                return;
-            }
-            File f = new File(System.getenv("SECONDARY_STORAGE") + "/" + fileName);
-            if (!f.exists()) {
-                try {
-                    f.createNewFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
         }
     }
 
@@ -624,7 +610,7 @@ public class FileUtils {
         if (nameFile == null || nameFile.length() == 0 || data == null) {
             return;
         }
-        if (isSDcardAvailable()) {
+        if (isSDCardAvailable()) {
             File log = new File(Environment.getExternalStorageDirectory(), nameFile);
             FileOutputStream fOut = null;
             try {
@@ -675,28 +661,8 @@ public class FileUtils {
         if (nameFile == null || nameFile.length() == 0 || data == null) {
             return;
         }
-        if (isSDcardAvailable()) {
+        if (isSDCardAvailable()) {
             File log = new File(Environment.getExternalStorageDirectory(), nameFile);
-            FileOutputStream fOut = null;
-            try {
-                fOut = new FileOutputStream(log);
-                fOut.write(data, 0, data.length);
-                fOut.flush();
-                fOut.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        } else if (isRemoveableSDCardExist()) {
-            File fp = new File(System.getenv("SECONDARY_STORAGE").toString(), "NewFolder");
-            fp.mkdir();
-            if (!fp.exists()) {
-                return;
-            }
-            String secStore = System.getenv("SECONDARY_STORAGE").toString();
-            File log = new File(secStore, nameFile);
             FileOutputStream fOut = null;
             try {
                 fOut = new FileOutputStream(log);
@@ -734,7 +700,6 @@ public class FileUtils {
     }
 
     /**
-     *
      * @param f
      * @return epochtime
      */
@@ -744,6 +709,7 @@ public class FileUtils {
         }
         return 0;
     }
+
 }
 
 
