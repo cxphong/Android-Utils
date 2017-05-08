@@ -224,6 +224,13 @@ public class ByteUtils {
         return Arrays.copyOfRange(src, startPos, endPos );
     }
 
+    /**
+     * Append array to an array
+     * @param src
+     * @param bytes
+     * @param startPos
+     * @return
+     */
     public static byte[] append(byte[] src, byte[] bytes, int startPos) {
         int j = 0;
         for (int i = startPos; i < startPos + bytes.length; i++) {
