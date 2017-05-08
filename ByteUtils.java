@@ -224,6 +224,15 @@ public class ByteUtils {
         return Arrays.copyOfRange(src, startPos, endPos );
     }
 
+    public static byte[] append(byte[] src, byte[] bytes, int startPos) {
+        int j = 0;
+        for (int i = startPos; i < startPos + bytes.length; i++) {
+            src[i] = bytes[j++];
+        }
+
+        return src;
+    }
+    
     /**
      * Convert byte array into string array of hex
      * @param a
