@@ -1,14 +1,11 @@
 package common.android.fiot.androidcommon;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Environment;
 import android.os.StatFs;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -23,8 +20,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
  * Created by dinhtho on 14/04/2017.
@@ -240,14 +235,15 @@ public class FileUtils {
     }
 
     /**
-     *
+     * Get size of a file in byte
      * @param f
      * @return size file
      */
-    public static long getFileSize(File f) {
+    public static long getFileSize(File f) throws FileNotFoundException {
         if (!f.exists() || !f.isFile()) {
-            return 0;
+            throw new FileNotFoundException(null);
         }
+
         return f.length();
     }
 
@@ -293,53 +289,6 @@ public class FileUtils {
         return null;
     }
 
-    public static void compressZip(String inputFolderPath, String outZipPath) {
-        if (!new File(inputFolderPath).exists() || !new File(outZipPath).exists()) {
-            return;
-        }
-        try {
-            int BUFFER = 2048;
-            BufferedInputStream origin = null;
-
-            FileOutputStream dest = new FileOutputStream(outZipPath);
-            ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(dest));
-
-            byte data[] = new byte[BUFFER];
-            File srcFile = new File(inputFolderPath);
-            if (srcFile.isDirectory()) {
-                File[] _files = srcFile.listFiles();
-
-                for (int i = 0; i < _files.length; i++) {
-                    Log.v("Compress", "Adding: " + _files[i]);
-                    FileInputStream fi = new FileInputStream(_files[i]);
-                    origin = new BufferedInputStream(fi, BUFFER);
-                    ZipEntry entry = new ZipEntry(_files[i].getPath().substring(_files[i].getPath().lastIndexOf("/") + 1));
-                    out.putNextEntry(entry);
-                    int count;
-                    while ((count = origin.read(data, 0, BUFFER)) != -1) {
-                        out.write(data, 0, count);
-                    }
-                    origin.close();
-                }
-            } else if (srcFile.isFile()) {
-                Log.v("Compress", "Adding: " + srcFile);
-                FileInputStream fi = new FileInputStream(srcFile);
-                origin = new BufferedInputStream(fi, BUFFER);
-                ZipEntry entry = new ZipEntry(srcFile.getPath().substring(srcFile.getPath().lastIndexOf("/") + 1));
-                out.putNextEntry(entry);
-                int count;
-                while ((count = origin.read(data, 0, BUFFER)) != -1) {
-                    out.write(data, 0, count);
-                }
-                origin.close();
-
-            }
-            out.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     /**
      *
      * @param f
@@ -371,17 +320,6 @@ public class FileUtils {
             t.printStackTrace();
         }
         return returnVal.toUpperCase();
-    }
-
-    public static void shareFile(File f, Context context) {
-        if (!f.exists() || !f.isFile()) {
-            return;
-        }
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_EMAIL, f);
-        sendIntent.setType("text/plain");
-        context.startActivity(sendIntent);
     }
 
     public static void copyfile(File file, File dir) {

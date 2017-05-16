@@ -213,7 +213,11 @@ public class ByteUtils {
      * @return
      */
     public static byte[] subByteArray(byte[] src, int startPos, int num) {
-        int endPos = 0;
+        if (startPos < 0 || num <= 0) {
+            return null;
+        }
+
+        int endPos;
 
         if (startPos + num > src.length) {
             endPos = src.length;
