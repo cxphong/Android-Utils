@@ -229,11 +229,11 @@ public class ByteUtils {
     }
 
     /**
-     * Append array to an array
-     * @param src
-     * @param bytes
-     * @param startPos
-     * @return
+     * Append a child array to a sourcd array
+     * @param src Source array
+     * @param bytes Child array
+     * @param startPos Start position
+     * @return New byte array
      */
     public static byte[] append(byte[] src, byte[] bytes, int startPos) {
         int j = 0;
@@ -246,8 +246,8 @@ public class ByteUtils {
     
     /**
      * Convert byte array into string array of hex
-     * @param a
-     * @return
+     * @param a Byte array
+     * @return Hex string
      */
     public static String toHexString(byte[] a) {
         if (a == null) return null;
@@ -260,6 +260,11 @@ public class ByteUtils {
         return Arrays.toString(s);
     }
 
+    /**
+     * Convert a byte array to String
+     * @param a byte array
+     * @return String format of byte array
+     */
     public static String toIntegerString(byte[] a) {
         if (a == null) return null;
 
@@ -270,7 +275,7 @@ public class ByteUtils {
      * Compare 2 byte array contain same data
      * @param b1
      * @param b2
-     * @return
+     * @return true, false
      */
     public static boolean compare2Array(byte[] b1, byte[] b2) {
         if (b1 == null && b2 == null) return true;
@@ -289,10 +294,10 @@ public class ByteUtils {
     }
 
     /**
-     * Check @child byte array is contain in @src byte array
-     * @param src
-     * @param child
-     * @return
+     * Check a child byte array is contain in a source byte array
+     * @param src Source byte array
+     * @param child Child byte array
+     * @return true, false
      */
     public static boolean isContain(byte[] src, byte[] child) {
         if (src == null && child == null) return true;

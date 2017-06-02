@@ -7,8 +7,8 @@ import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
+import java.io.BufferedWriter;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -17,7 +17,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 
@@ -57,7 +57,6 @@ public class FileUtils {
     }
 
     /**
-     *
      * @param context
      * @return is Internal Storage Available
      */
@@ -66,7 +65,6 @@ public class FileUtils {
     }
 
     /**
-     *
      * @return SDCard RootPath
      */
     public static String getSDCardRootPath() {
@@ -78,7 +76,6 @@ public class FileUtils {
     }
 
     /**
-     *
      * @param context
      * @return Internal Storage Path
      */
@@ -87,8 +84,7 @@ public class FileUtils {
     }
 
     /**
-     *
-     * @return free size External Storage
+     * @return free size External Storage in bytes
      */
     public static long getFreeSDCardSize() {
         if (isSDCardAvailable()) {
@@ -103,31 +99,42 @@ public class FileUtils {
     }
 
     /**
-     *
      * @param context
-     * @return  free size Internal Storage
+     * @return free size Internal Storage in bytes
      */
     public static long getFreeInternalAvailableSize(Context context) {
         long freeBytesInternal = new File(context.getFilesDir().getAbsoluteFile().toString()).getFreeSpace();
         return freeBytesInternal;
     }
 
+    /**
+     * Get Path of folder of the app
+     *
+     * @param context
+     * @return NULL if folder is not exist
+     */
     public static String getAppFolderInSDCardPath(Context context) {
-        return getSDCardRootPath() + "/" + context.getResources().getString(R.string.app_name);
+        String extStorageDirectory = getSDCardRootPath();
+        File folder = new File(extStorageDirectory + "/" + context.getResources().getString(R.string.app_name));
+
+        if (folder.exists()) {
+            return folder.getAbsolutePath();
+        }
+
+        return null;
     }
 
     /**
      * Create folder with name is app's name
+     *
      * @param context
      */
     public static void createAppFolderInSDCard(Context context) {
         if (isSDCardAvailable()) {
             String extStorageDirectory = getSDCardRootPath();
-            File folder = new File(extStorageDirectory +  "/" + context.getResources().getString(R.string.app_name));
+            File folder = new File(extStorageDirectory + "/" + context.getResources().getString(R.string.app_name));
 
-            Log.i(TAG, "createAppFolderInSDcard: " + folder.getAbsolutePath());
             if (!folder.exists()) {
-                Log.i(TAG, "createAppFolderInSDcard: dd");
                 folder.mkdir();
             }
         }
@@ -135,6 +142,7 @@ public class FileUtils {
 
     /**
      * Create folder in Root path of SDCard
+     *
      * @param nameFolder
      */
     public static void createFolderInRootSDCard(String nameFolder) {
@@ -150,10 +158,11 @@ public class FileUtils {
 
     /**
      * Create folder in app folder
+     *
      * @param nameFolder
      * @param context
      */
-    public static void createFolderInAppFolder(String nameFolder, Context context) {
+    public static void createFolderInAppFolder(Context context, String nameFolder) {
         if (nameFolder == null || nameFolder.length() == 0) {
             return;
         }
@@ -164,6 +173,10 @@ public class FileUtils {
         createFolder(getAppFolderInSDCardPath(context) + "/" + nameFolder);
     }
 
+    /**
+     * @param folderPath
+     * @return
+     */
     public static boolean createFolder(String folderPath) {
         if (folderPath == null || folderPath.length() == 0) return false;
         if (!isExternalStorageWritable()) return false;
@@ -176,7 +189,11 @@ public class FileUtils {
         }
     }
 
-    public static boolean createFolderInInternalStorage(String nameFolder, Context context) {
+    /**
+     * @param nameFolder
+     * @return
+     */
+    public static boolean createFolderInInternalStorage(Context context, String nameFolder) {
         if (nameFolder == null || nameFolder.length() == 0) {
             return false;
         }
@@ -191,11 +208,16 @@ public class FileUtils {
         }
     }
 
+    /**
+     * @param fileName
+     * @param context
+     */
     public static void createFileInAppFolder(String fileName, Context context) {
         if (fileName == null || fileName.length() == 0) {
             return;
         }
-        File f = context.getDir(fileName, Context.MODE_PRIVATE);
+
+        File f = new File(getAppFolderInSDCardPath(context) + "/" + fileName);
         if (!f.exists()) {
             try {
                 f.createNewFile();
@@ -205,11 +227,14 @@ public class FileUtils {
         }
     }
 
+    /**
+     * @param fileName
+     */
     public static void createFileInRootSDCard(String fileName) {
         if (fileName == null || fileName.length() == 0) {
             return;
         } else if (isSDCardAvailable()) {
-            File f = new File(Environment.getExternalStorageDirectory(), fileName);
+            File f = new File(getSDCardRootPath(), fileName);
             if (!f.exists()) {
                 try {
                     f.createNewFile();
@@ -220,6 +245,10 @@ public class FileUtils {
         }
     }
 
+    /**
+     * @param filename
+     * @param context
+     */
     public static void createFileInternal(String filename, Context context) {
         if (filename == null || filename.length() == 0) {
             return;
@@ -236,6 +265,7 @@ public class FileUtils {
 
     /**
      * Get size of a file in byte
+     *
      * @param f
      * @return size file
      */
@@ -248,13 +278,12 @@ public class FileUtils {
     }
 
     /**
-     *
      * @param f
      * @return kind of f
      */
-    public static String getFileKind(File f) {
+    public static String getFileKind(File f) throws FileNotFoundException {
         if (!f.exists() || !f.isFile()) {
-            return null;
+            throw new FileNotFoundException(null);
         }
         String type = null;
         String extension = MimeTypeMap.getFileExtensionFromUrl(f.getPath());
@@ -264,24 +293,35 @@ public class FileUtils {
         return type;
     }
 
-    public static long getFileModified(File f) {
+    /**
+     * @param f
+     * @return epoch
+     */
+    public static long getFileModified(File f) throws FileNotFoundException {
         if (f.isFile() && f.exists()) {
             return f.lastModified();
         }
-        return 0;
+
+
+        throw new FileNotFoundException(null);
     }
 
     /**
-     *
      * @param f
      * @return Extension of f
      */
-    public static String getFileExtension(File f) {
+    public static String getFileExtension(File f) throws FileNotFoundException {
         if (!f.exists() || !f.isFile()) {
-            return null;
+            throw new FileNotFoundException(null);
         }
         String fileName = f.getName();
-        String tail = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
+        int index = fileName.lastIndexOf(".");
+
+        if (index == -1) {
+            return null;
+        }
+
+        String tail = fileName.substring(index + 1, fileName.length());
         if (tail.length() > 0) {
             return tail;
         }
@@ -290,6 +330,7 @@ public class FileUtils {
     }
 
     /**
+     * (NOT TEST)
      *
      * @param f
      * @return checksum file
@@ -322,9 +363,17 @@ public class FileUtils {
         return returnVal.toUpperCase();
     }
 
-    public static void copyfile(File file, File dir) {
+    /**
+     * @param filePath
+     * @param folderPath
+     * @throws FileNotFoundException
+     */
+    public static void copyFile(String filePath, String folderPath) throws FileNotFoundException {
+        File file = new File(filePath);
+        File dir = new File(folderPath);
+
         if (!file.exists() || !file.isFile() || !dir.exists() || !dir.isDirectory()) {
-            return;
+            throw new FileNotFoundException(null);
         }
         File newFile = new File(dir, file.getName());
         FileChannel outputChannel = null;
@@ -352,7 +401,12 @@ public class FileUtils {
         }
     }
 
-    public static void douplicateFile(File file) {
+    /**
+     * @param filePath
+     */
+    public static void duplicateFile(String filePath) {
+        File file = new File(filePath);
+
         if (!file.exists() || !file.isFile()) {
             return;
         }
@@ -396,7 +450,6 @@ public class FileUtils {
     }
 
     /**
-     *
      * @param f
      * @return list files from folder
      */
@@ -407,14 +460,51 @@ public class FileUtils {
         return f.listFiles();
     }
 
-    public static void deleteFile(File f) {
+    /**
+     * @param path
+     * @throws FileNotFoundException
+     */
+    public static void deleteFile(String path) throws FileNotFoundException {
+        File f = new File(path);
+
         if (!f.exists()) {
-            return;
+            throw new FileNotFoundException(null);
         }
+
         f.delete();
     }
 
-    public static void moveFile(File file, File dir) {
+    /**
+     * @param path
+     * @return
+     */
+    public static boolean deleteDirectory(String path) {
+        File directory = new File(path);
+
+        if (directory.exists()) {
+            File[] files = directory.listFiles();
+            if (null != files) {
+                for (int i = 0; i < files.length; i++) {
+                    if (files[i].isDirectory()) {
+                        deleteDirectory(files[i].getAbsolutePath());
+                    } else {
+                        files[i].delete();
+                    }
+                }
+            }
+        }
+
+        return (directory.delete());
+    }
+
+    /**
+     * @param filePath
+     * @param folderPath
+     */
+    public static void moveFile(String filePath, String folderPath) {
+        File file = new File(filePath);
+        File dir = new File(folderPath);
+
         if (!file.exists() || !file.isFile() || !dir.exists() || !dir.isDirectory()) {
             return;
         }
@@ -446,7 +536,6 @@ public class FileUtils {
     }
 
     /**
-     *
      * @param f
      * @return string in f
      */
@@ -479,7 +568,7 @@ public class FileUtils {
         if (data == null) {
             return;
         }
-        if(!f.exists()){
+        if (!f.exists()) {
             try {
                 f.createNewFile();
             } catch (IOException e) {
@@ -521,87 +610,60 @@ public class FileUtils {
         return sb.toString();
     }
 
-    /**
-     *
-     * @param f
-     * @return bytes array
-     * @throws IOException
-     */
     public static byte[] readBinaryFile(File f) throws IOException {
         if (!f.exists() || !f.isFile()) {
-            return null;
-        }
-        InputStream inputStream = new FileInputStream(f);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(baos);
-        byte[] data = new byte[4096];
-        int count = inputStream.read(data);
-        while (count != -1) {
-            dos.write(data, 0, count);
-            count = inputStream.read(data);
+            throw new FileNotFoundException(null);
         }
 
-        return baos.toByteArray();
+        byte[] fileData = new byte[(int) f.length()];
+        DataInputStream dis = new DataInputStream(new FileInputStream(f));
+        dis.readFully(fileData);
+        dis.close();
+
+        return fileData;
     }
 
-    public static void saveStringToSDCard(String data, String nameFile) {
+    /**
+     *
+     * @param data
+     * @param nameFile
+     */
+    public static void saveStringToFile(String data, String nameFile) {
+        if (nameFile == null || nameFile.length() == 0 || data == null) {
+            return;
+        }
+
+        File log = new File(nameFile);
+        if (!log.exists()) {
+            try {
+                log.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            Writer writer = new BufferedWriter(new FileWriter(log));
+            writer.write(data);
+            writer.close();
+        } catch (IOException e) {
+            Log.w("eztt", e.getMessage(), e);
+        }
+    }
+
+    /**
+     *
+     * @param data
+     * @param nameFile
+     */
+    public static void saveBinaryToFile(byte[] data, String nameFile) {
         if (nameFile == null || nameFile.length() == 0 || data == null) {
             return;
         }
         if (isSDCardAvailable()) {
-            File log = new File(Environment.getExternalStorageDirectory(), nameFile);
-            FileOutputStream fOut = null;
-            try {
-                fOut = new FileOutputStream(log);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            OutputStreamWriter myOutWriter =
-                    new OutputStreamWriter(fOut);
-            try {
+            File log = new File(nameFile);
 
-                myOutWriter.write(data);
-                myOutWriter.close();
-                fOut.close();
-            } catch (Exception e) {
-                Log.e(TAG, "Error opening Log.", e);
-            }
-
-        } else {
-            File fp = new File(System.getenv("SECONDARY_STORAGE").toString(), "NewFolder");
-            fp.mkdir();
-            if (!fp.exists()) {
-                return;
-            }
-            String secStore = System.getenv("SECONDARY_STORAGE").toString();
-            File log = new File(secStore, nameFile);
-            FileOutputStream fOut = null;
-            try {
-                fOut = new FileOutputStream(log);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-            OutputStreamWriter myOutWriter =
-                    new OutputStreamWriter(fOut);
-            try {
-
-                myOutWriter.write(data);
-                myOutWriter.close();
-                fOut.close();
-            } catch (Exception e) {
-                Log.e(TAG, "Error opening Log.", e);
-            }
-        }
-
-    }
-
-    public static void saveBinaryToSDCard(byte[] data, String nameFile) {
-        if (nameFile == null || nameFile.length() == 0 || data == null) {
-            return;
-        }
-        if (isSDCardAvailable()) {
-            File log = new File(Environment.getExternalStorageDirectory(), nameFile);
-            FileOutputStream fOut = null;
+            FileOutputStream fOut;
             try {
                 fOut = new FileOutputStream(log);
                 fOut.write(data, 0, data.length);
@@ -615,11 +677,7 @@ public class FileUtils {
         }
     }
 
-    /**
-     *
-     * @param dir
-     * @return size folder
-     */
+
     public static long getFolderSize(File dir) {
 
         if (dir.exists() && dir.isDirectory()) {
@@ -637,10 +695,7 @@ public class FileUtils {
         return 0;
     }
 
-    /**
-     * @param f
-     * @return epochtime
-     */
+
     public static long getFolderModified(File f) {
         if (f.exists() && f.isDirectory()) {
             return f.lastModified();
