@@ -610,6 +610,12 @@ public class FileUtils {
         return sb.toString();
     }
 
+    /**
+     *
+     * @param f
+     * @return
+     * @throws IOException
+     */
     public static byte[] readBinaryFile(File f) throws IOException {
         if (!f.exists() || !f.isFile()) {
             throw new FileNotFoundException(null);
@@ -677,9 +683,7 @@ public class FileUtils {
         }
     }
 
-
     public static long getFolderSize(File dir) {
-
         if (dir.exists() && dir.isDirectory()) {
             long result = 0;
             File[] fileList = dir.listFiles();
@@ -694,7 +698,6 @@ public class FileUtils {
         }
         return 0;
     }
-
 
     public static long getFolderModified(File f) {
         if (f.exists() && f.isDirectory()) {

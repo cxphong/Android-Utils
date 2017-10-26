@@ -44,8 +44,8 @@ public class BitUtils {
      * @param length
      * @return
      */
-    public static String getBit(int i, int startPos, int length) {
-        if (startPos < 0 || length < 0) {
+    public static Integer getBit(int i, int startPos, int length) {
+        if (startPos < 0 || length < 0 || length > Integer.SIZE) {
             return null;
         }
 
@@ -55,10 +55,34 @@ public class BitUtils {
         do {
             int k = (i >> startPos) & 1;
             b += k;
-            j ++;
-            startPos ++;
+            j++;
+            startPos++;
         } while (j < length);
 
-        return new StringBuilder(b).reverse().toString();
+        String bits = new StringBuilder(b).reverse().toString();
+        return binaryStringToInt(bits);
+    }
+
+    /**
+     * Get bit of an integer
+     * @param i an integer
+     * @param position
+     * @param value 0/1
+     * @return
+     */
+    public static Integer setBit(int i, int position, int value) {
+        if (value != 0 && value != 1) {
+            return null;
+        }
+
+        if (position < 0 || position > Integer.SIZE) {
+            return null;
+        }
+
+        String bits = toBinaryString(i);
+        char[] b = bits.toCharArray();
+        b[bits.length() - 1 - position] = (value + "").toCharArray()[0];
+
+        return binaryStringToInt(new String(b));
     }
 }
