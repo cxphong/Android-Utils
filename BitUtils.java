@@ -36,6 +36,22 @@ public class BitUtils {
         return Integer.toHexString(Integer.parseInt(b, 2));
     }
 
+    private static String leadingZero(String s) {
+        if (s.length() > Integer.SIZE) {
+            return s;
+        }
+
+        int amount = Integer.SIZE - s.length();
+
+        String tmp = "";
+        do {
+            tmp += "0";
+            amount --;
+        } while (amount > 0);
+
+        return tmp + s;
+    }
+
     /**
      * Get value of Integer with bit
      *
@@ -80,6 +96,7 @@ public class BitUtils {
         }
 
         String bits = toBinaryString(i);
+        bits = leadingZero(bits);
         char[] b = bits.toCharArray();
         b[bits.length() - 1 - position] = (value + "").toCharArray()[0];
 
