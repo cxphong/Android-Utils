@@ -61,7 +61,7 @@ public class BitUtils {
      * @return
      */
     public static Integer getBit(int i, int startPos, int length) {
-        if (startPos < 0 || length < 0 || length > Integer.SIZE) {
+        if (startPos < 0 || length <= 0 || length > Integer.SIZE) {
             return null;
         }
 
@@ -102,4 +102,17 @@ public class BitUtils {
 
         return binaryStringToInt(new String(b));
     }
+
+    /**
+     * Get Max value of bits
+     * Ex: 2 bits => 3, 8 bits => 255
+     * @param numberOfBits
+     * @return
+     */
+    public static Integer getMaxValue(int numberOfBits) {
+        int i = 0xff;
+
+        return getBit(i, 0, numberOfBits);
+    }
+
 }
