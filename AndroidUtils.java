@@ -1,5 +1,4 @@
-
-package com.example.dinhtho.fileutils;
+package common.android.fiot.androidcommon;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
@@ -8,6 +7,8 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
@@ -106,11 +107,39 @@ public class AndroidUtils {
         }
     }
 
+    public static String getAppVersionName(Context context) {
+        String versionName = null;
+
+        try {
+            PackageInfo packageInfo = context.getPackageManager().
+                    getPackageInfo(context.getPackageName(), 0);
+            versionName = packageInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return versionName;
+    }
+
+    public static int getAppVersionCode(Context context) {
+        int versionCode = -1;
+
+        try {
+            PackageInfo packageInfo = context.getPackageManager().
+                    getPackageInfo(context.getPackageName(), 0);
+            versionCode = packageInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return versionCode;
+    }
+
     public static String getModel() {
         return Build.MODEL;
     }
 
-    public static String getAndroidversion() {
+    public static String getAndroidPhoneVersion() {
         return Build.VERSION.RELEASE;
     }
 
@@ -219,7 +248,7 @@ public class AndroidUtils {
 //getFreeMemory()
 //isPhoneOrTablet()
 //getModel()
-//getAndroidversion()
+//getAndroidPhoneVersion()
 //getIPAddress()
 //getBatteryStatus()
 //getLanguage()
